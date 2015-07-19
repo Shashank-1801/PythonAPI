@@ -9,13 +9,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import urllib2
-import urllib
 import json
 import base64
 import MySQLdb
 
 
-# retrive the Data from Houzify server as per the id provided
+# retrieve the Data from Houzify server as per the id provided
 def getData(data_id):
     username = 'recruiting_shashank'
     password = 'apipassword'
@@ -32,11 +31,11 @@ def extractUrl(json_data):
     print "----------- Extracting URL "
     json_decode = json.loads(json_data)
     p = json_decode['image_medium']['image']
-    print p
+    #print p
     print "----------- URL Extracted "
     return p
 
-# send the url ti Imagga server to get back JSON full of tags
+# send the url to Imagga server to get back JSON full of tags
 def imaggaTags(url):
     img = "http://t2.gstatic.com/images?q=tbn:ANd9GcRk9utIiZ5hmk5t5z8ekdt-yYbJWnDU9ya8g5RMtywsfKUR62fy"
     encoded_img = img
@@ -47,7 +46,7 @@ def imaggaTags(url):
     print "----------- Fetching data from Imagga Server "
     res = urllib2.urlopen(request)
     json_response =  res.read()
-    print json_response
+    #print json_response
     print "----------- Data fetched from Imagga Server "
     return json_response
 
@@ -58,11 +57,11 @@ def extractTags(json_data):
     results =[]
     p = json_decode['results'][0]
     for x in p['tags']:
-         results.append(dict(tag=x["tag"]))
+        results.append(dict(tag=x["tag"]))
     results_json = json.dumps(results)
     results_json = json.loads(results_json)
     print "----------- Tags Extracted "
-    print results
+    #print results
     return results
 
 def writeDB(pin_id, new_json_data):
@@ -84,6 +83,7 @@ def writeDB(pin_id, new_json_data):
             cursor.execute(sql_update)
             # Commit your changes in the database
             db.commit()
+            print "UPDATE complete"
         except:
             # Rollback in case there is any error
             print "Error in UPDATE"
@@ -93,14 +93,15 @@ def writeDB(pin_id, new_json_data):
         #need to insert data
         sql_insert = 'INSERT INTO pin_extension (pin_id, tag) VALUES (' + str(pin_id) + ',\'' + new_json_data + '\')'
         try:
-           # Execute the SQL command
-           cursor.execute(sql_insert)
-           # Commit your changes in the database
-           db.commit()
+            # Execute the SQL command
+            cursor.execute(sql_insert)
+            # Commit your changes in the database
+            db.commit()
+            print "INSERT complete"
         except:
-           # Rollback in case there is any error
-           print "Error in INSERT"
-           db.rollback()
+            # Rollback in case there is any error
+            print "Error in INSERT"
+            db.rollback()
     # disconnect from server
     db.close()
     print "------------ Disconnected ------------"
@@ -115,8 +116,8 @@ def main():
     new_json["image_tags"] = tags
     new_json = json.dumps(new_json)
     #new_json = json.loads(new_json)
-    print '----------- New JSON '
-    print new_json
+    #print '----------- New JSON '
+    #print new_json
     #new_json = '{"id":366141,"parent_id":null,"board_id":26866,"category_id":36,"user_id":845,"date_added":"2015-03-31 00:55:31","date_modified":"2015-03-31 00:55:32","likes":8,"comments":0,"repins":0,"title":null,"description":"Earthy Minimal Living ","source_id":null,"from":null,"width":676,"height":1185,"image":"\/uploads\/pins\/2015\/03\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","store":"Local","store_host":"{local}","video":0,"background_color":null,"pinned_from":"Uploaded","gift":0,"price":null,"currency_code":null,"gallery":0,"status":1,"public":1,"liked":0,"user_is_follow":0,"board":"Living Room","username":"Pro_MayaPraxis","firstname":"mayaPRAXIS","lastname":"Design + Architecture","pins":25,"boards":8,"user_likes":0,"followers":0,"image_medium":{"image":"http:\/\/dev.houzify.com\/uploads\/pins\/2015\/03\/medium\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","width":236,"height":414},"image_big":{"image":"http:\/\/dev.houzify.com\/uploads\/pins\/2015\/03\/big\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","width":676,"height":1185},"user":{"id":845,"username":"Pro_MayaPraxis","password":"ceb11da7d9d833e059e71f804ac82432","password_new":null,"password_key":null,"email":"vijay@mayapraxis.com","firstname":"mayaPRAXIS","lastname":"Design + Architecture","pins":25,"likes":0,"comments":0,"boards":8,"followers":0,"following":0,"language_id":1,"status":1,"activate_url":null,"avatar_width":200,"avatar_height":208,"avatar":"\/uploads\/users\/2015\/01\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","avatar_store_host":"{local}","avatar_store":"Local","date_added":"2015-01-21 05:08:57","date_modified":"2015-04-20 01:26:17","cover_width":0,"cover_height":0,"cover_top":0,"cover":null,"cover_store_host":null,"cover_store":null,"about":"Headed by Vijay Narnapatti and Dimple Mittal, MayaPraxis works on Architecture and related design fields. ","is_admin":0,"gender":"unsigned","status_send":null,"country_iso_code_3":"IND","website":"http:\/\/www.mayapraxis.biz","search_engines":1,"city":"Bangalore","first_login":1,"send_daily":1,"repins":0,"notification_comment_pin":1,"notification_mentioned":1,"notification_follow_user":1,"notification_like_pin":1,"notification_repin_pin":1,"notification_group_board":1,"notification_news":1,"last_online":"2015-05-15 04:26:20","activity_open":"2015-04-20 01:26:17","avatar_small":{"image":"http:\/\/dev.houzify.com\/uploads\/users\/2015\/01\/small\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","width":60,"height":60},"avatar_medium":{"image":"http:\/\/dev.houzify.com\/uploads\/users\/2015\/01\/medium\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","width":200,"height":200},"cover_image":{"width":986,"height":348,"bits":8,"mime":"image\/jpeg","extension":"jpeg","image":"http:\/\/dev.houzify.com\/uploads\/noimage\/usercovers\/small.jpeg"}}}'
     #print new_json
     writeDB(pin_id, new_json)
