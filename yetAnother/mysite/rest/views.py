@@ -1,19 +1,75 @@
-#-------------------------------------------------------------------------------
-# Name:        HouzifyAPI
-# Purpose:     Implement a extension for exisiting API
-#
-# Author:      shekhar
-#
-# Created:     18/07/2015
-# Copyright:   (c) shekhar 2015
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+from django.http import HttpResponse
 import urllib2
 import json
 import base64
 import MySQLdb
 
 
+def index(request):
+    return HttpResponse("Invalid page")
+
+def generate_tags(request):
+    """
+    a./rest/pin/generate_tags?id=<value>
+    This API call should update read the pin, extract its image_medium field and use that
+    URL to tag the image with its contents.
+    """
+    id = request.GET.get('id', '')
+    pin_id = int(id)
+    if(not pin_id):
+        return HttpResponse('Please pass a vaild id')
+    #if(type(id) != int):
+     #   return HttpResponse('Please pass a vaild id as integer')
+
+    #if id is passed as int
+    url_json = getData(pin_id)
+    url = extractUrl(url_json)
+    tags_json = imaggaTags(url)
+    tags = extractTags(tags_json)
+    new_json = json.loads(url_json)
+    new_json["image_tags"] = tags
+    new_json = json.dumps(new_json)
+    writeDB(pin_id, new_json)
+    return HttpResponse(new_json, content_type="application/json")
+    #return HttpResponse("This is the rest app --> generate_tags" + str(id))
+
+def tags(request):
+    """
+    b./rest/pin/tags?id=366141
+    This API call should find a pin by its id and return all the tags about the pin in JSON
+    format.
+    """
+    id = request.GET.get('id', '')
+    pin_id = int(id)
+    if(not pin_id):
+        return HttpResponse('Please pass a vaild id')
+    #if(type(id) != int):
+     #   return HttpResponse('Please pass a vaild id as integer')
+
+    #if id is passed as int
+    url_json = getData(pin_id)
+    url = extractUrl(url_json)
+    tags_json = imaggaTags(url)
+    tags = extractTags(tags_json)
+    tags = json.dumps(tags)
+    return HttpResponse(tags, content_type="application/json")
+
+def find(request):
+    """
+    c. /rest/pin/find?tag=<value
+    This API call should find a pin by using the tag data which is stored and return the
+    complete data about a pin in JSON format. It should also include all the tags for that pin in the
+    result.
+    """
+    tag = request.GET.get('tag', '')
+    res = findTag(tag)
+    return HttpResponse(res, content_type="application/json")
+
+
+
+"""
+Helper methods that will be used
+"""
 # retrieve the Data from Houzify server as per the id provided
 def getData(data_id):
     username = 'recruiting_shashank'
@@ -106,6 +162,7 @@ def writeDB(pin_id, new_json_data):
     db.close()
     print "------------ Disconnected ------------"
 
+# find tags in the DB
 def findTag(tag):
     #connecting to the remote MySQL DB
     db = MySQLdb.connect('50.116.7.149','recruit_shashank','dbpassword','hzpintastic')
@@ -122,7 +179,7 @@ def findTag(tag):
         for x in data:
             for p in (json.loads(x[0])['image_tags']):
                 try:
-                    if(tag == str(str(p['tag']))):
+                    if(tag == str(p['tag'])):
                         result.append(x)
                 except:
                     print "Data not found in this row"
@@ -133,27 +190,3 @@ def findTag(tag):
     # disconnect from server
     db.close()
     print "------------ Disconnected ------------"
-
-
-
-def main():
-    pin_id = 366141
-    url_json = getData(pin_id)
-    url = extractUrl(url_json)
-    tags_json = imaggaTags(url)
-    tags = extractTags(tags_json)
-    new_json = json.loads(url_json)
-    new_json["image_tags"] = tags
-    new_json = json.dumps(new_json)
-    #new_json = json.loads(new_json)
-    #print '----------- New JSON '
-    #print new_json
-    #new_json = '{"id":366141,"parent_id":null,"board_id":26866,"category_id":36,"user_id":845,"date_added":"2015-03-31 00:55:31","date_modified":"2015-03-31 00:55:32","likes":8,"comments":0,"repins":0,"title":null,"description":"Earthy Minimal Living ","source_id":null,"from":null,"width":676,"height":1185,"image":"\/uploads\/pins\/2015\/03\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","store":"Local","store_host":"{local}","video":0,"background_color":null,"pinned_from":"Uploaded","gift":0,"price":null,"currency_code":null,"gallery":0,"status":1,"public":1,"liked":0,"user_is_follow":0,"board":"Living Room","username":"Pro_MayaPraxis","firstname":"mayaPRAXIS","lastname":"Design + Architecture","pins":25,"boards":8,"user_likes":0,"followers":0,"image_medium":{"image":"http:\/\/dev.houzify.com\/uploads\/pins\/2015\/03\/medium\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","width":236,"height":414},"image_big":{"image":"http:\/\/dev.houzify.com\/uploads\/pins\/2015\/03\/big\/6b2a9998e3c301b60bdd206b6350cdb9.jpeg","width":676,"height":1185},"user":{"id":845,"username":"Pro_MayaPraxis","password":"ceb11da7d9d833e059e71f804ac82432","password_new":null,"password_key":null,"email":"vijay@mayapraxis.com","firstname":"mayaPRAXIS","lastname":"Design + Architecture","pins":25,"likes":0,"comments":0,"boards":8,"followers":0,"following":0,"language_id":1,"status":1,"activate_url":null,"avatar_width":200,"avatar_height":208,"avatar":"\/uploads\/users\/2015\/01\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","avatar_store_host":"{local}","avatar_store":"Local","date_added":"2015-01-21 05:08:57","date_modified":"2015-04-20 01:26:17","cover_width":0,"cover_height":0,"cover_top":0,"cover":null,"cover_store_host":null,"cover_store":null,"about":"Headed by Vijay Narnapatti and Dimple Mittal, MayaPraxis works on Architecture and related design fields. ","is_admin":0,"gender":"unsigned","status_send":null,"country_iso_code_3":"IND","website":"http:\/\/www.mayapraxis.biz","search_engines":1,"city":"Bangalore","first_login":1,"send_daily":1,"repins":0,"notification_comment_pin":1,"notification_mentioned":1,"notification_follow_user":1,"notification_like_pin":1,"notification_repin_pin":1,"notification_group_board":1,"notification_news":1,"last_online":"2015-05-15 04:26:20","activity_open":"2015-04-20 01:26:17","avatar_small":{"image":"http:\/\/dev.houzify.com\/uploads\/users\/2015\/01\/small\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","width":60,"height":60},"avatar_medium":{"image":"http:\/\/dev.houzify.com\/uploads\/users\/2015\/01\/medium\/23d43e56fcd1c40bf262fb1b3332579b.jpeg","width":200,"height":200},"cover_image":{"width":986,"height":348,"bits":8,"mime":"image\/jpeg","extension":"jpeg","image":"http:\/\/dev.houzify.com\/uploads\/noimage\/usercovers\/small.jpeg"}}}'
-    #print new_json
-    writeDB(pin_id, new_json)
-    print (findTag('peace'))
-    print (findTag('abcasjcka'))
-
-if __name__ == '__main__':
-    main()
-
