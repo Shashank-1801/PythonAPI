@@ -45,16 +45,21 @@ def CC(number, cycle=0):
     
     return CC(number, cycle+1)
 
+def calMaxCount(start, end):
+    maxVal = 0
+    for x in range(start, end):
+        val = CC(x)
+        if(val > maxVal):
+            maxVal = val 
+            print str(maxVal) + " corresponding to "+ str(x) 
+            
+    return maxVal;
 
 
 #driver program:    
 print CC(20)
-l = []
-for x in range(1,1000000):
-    print (CC(x))
- 
-
-
+p = calMaxCount(1, 100)
+print "Max value is : " + str(p)
 
 
 
