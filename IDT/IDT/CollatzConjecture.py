@@ -51,16 +51,16 @@ def calMaxCount(start, end):
         val = CC(x)
         if(val > maxVal):
             maxVal = val 
-            print str(maxVal) + " corresponding to "+ str(x) 
+            #print str(maxVal) + " corresponding to "+ str(x) 
             
     return maxVal;
 
-
+'''
 #driver program:    
 print CC(20)
 p = calMaxCount(1, 100)
 print "Max value is : " + str(p)
-
+'''
 
 
 
