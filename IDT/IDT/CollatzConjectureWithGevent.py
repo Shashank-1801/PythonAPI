@@ -14,7 +14,7 @@ def newFunc(x,y, name):
 
 g0 = gevent.spawn(newFunc,21, 30, "g0")    
 g1 = gevent.spawn(newFunc,11, 20, "g1")
-g2 = gevent.spawn(newFunc,1, 10, "g2")
+g2 = gevent.spawn(newFunc,1, 1000000, "g2")
 
 events = [g1,g2,g0]
 gevent.joinall(events)
