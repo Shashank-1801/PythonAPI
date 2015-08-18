@@ -34,10 +34,15 @@ If you have any questions/doubts, please feel free to reach out.
 
 Ritesh
 """
+from IDT import CollatzConjecture
 
 def CC(number, cycle=0):
     if(number==1):
         return cycle+1
+    elif(number in hashTable):
+        #print "Used hash for "+ str(number)
+        v = hashTable[number]
+        return cycle+v
     elif(number%2!=0):
         number = 3*number+1
     else:
@@ -47,20 +52,41 @@ def CC(number, cycle=0):
 
 def calMaxCount(start, end):
     maxVal = 0
-    for x in range(start, end):
+    for x in range(start, end+1):
         val = CC(x)
         if(val > maxVal):
-            maxVal = val 
+            maxVal = val
             print str(maxVal) + " corresponding to "+ str(x) 
             
     return maxVal;
 
+#precompute the value
+def ccWithHashing(number,hashTable,cycle=0):
+    if(number in hashTable):
+        v = hashTable[number]
+        return cycle+v
+    else:
+        val = CC(number)
+        hashTable[number]=val
+    return val
+    
+
+
+#driver program:    
+hashTable = {1:1}
+
+for n in range(1,100000):
+    p = ccWithHashing(n, hashTable)
+    #print hashTable
+    q = CollatzConjecture.CC(n)
+    if(p!=q):
+        print "Different"
+
 '''
-#driver program
 print CC(20)
 print CC(10)
 print CC(5)
-p = calMaxCount(1, 1000000)
+p = calMaxCount(1, 100)
 print "Max value is : " + str(p)
 '''
 
