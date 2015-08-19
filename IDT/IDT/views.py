@@ -10,7 +10,9 @@ def idea(request):
     try:
         start = int(s)
         end = int(e)    
-        print "start: " + str(s) +" and end: "+ str(e)    
+        print "start: " + str(s) +" and end: "+ str(e)
+        if(start > end):
+            return HttpResponse("Invalid parameters, start will be less than end, add parameters like start=1&end=10")    
     except:
         return HttpResponse("Invalid parameters, add parameters like start=1&end=10")
 
