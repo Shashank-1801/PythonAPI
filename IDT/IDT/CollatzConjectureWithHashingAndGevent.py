@@ -36,23 +36,30 @@ If you have any questions/doubts, please feel free to reach out.
 Ritesh
 """
 import gevent
+from gevent.pool import Pool
+
+pool = Pool(20)
 
 
 #need to make this using gevent
 def calMaxCountWithGevent(start, end):
     maxVal = 0
-    events = [gevent.spawn(CC,x) for x in xrange(start,end+1)]
-    gev = gevent.joinall(events)
-    #for g in gev:
+    global hashTable
+    global pool
+    events = []
+    for x in xrange(start,end+1):
+        events.append(pool.spawn(CC,x))
+    pool.join()
+    
     for x in xrange(0, end+1-start):
-        g = gev[x]
+        g = events[x]
         val = g.value
         hashTable[x] = val
         #print hashTable
         if(val > maxVal):
             maxVal = val 
             print str(maxVal) + " corresponding to "+ str(x+start) 
-    #print hashTable        
+    #print hashTable
     return maxVal;
 
 #need to make this using gevent
@@ -70,6 +77,7 @@ def calMaxCountWithoutGevent(start, end):
 
 
 def CC(number, cycle=0):
+    global hashTable
     if(number==1):
         return cycle+1
     elif(number in hashTable):
@@ -83,15 +91,15 @@ def CC(number, cycle=0):
     num = number
     ret = CC(number, cycle+1)
     #print "adding ", num, " : ",ret - cycle
-    hashTable[num] = ret - cycle
+    hashTable[num] = ret - cycle -1
     return ret
 
 #driver program:    
 hashTable = {1:1}
 print "Starting :"
 a = 1
-b = 837799
-print calMaxCountWithoutGevent(a,b)
+b = 100
+#print calMaxCountWithoutGevent(a,b)
 print calMaxCountWithGevent(a,b)
 #print hashTable
 print "End"
