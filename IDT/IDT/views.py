@@ -41,13 +41,14 @@ from gevent.pool import Pool
 import time
 
 hashTable = {1:1}
-pool = Pool(10000)
+pool = Pool(1000)
 
 
 def idea(request):    
     e = request.GET.get('end', '')
     s = request.GET.get('start', '')
     
+    global pool
     start_time = time.time()
     
     try:
@@ -57,6 +58,9 @@ def idea(request):
         end = int(e)    
         if(end > 1000000):
             return HttpResponse("Invalid parameters, end cannot exceed 1M, add parameters like start=1&end=10")
+        pool_size = int(end-start)/10
+        if(pool_size > 1000):
+            pool = Pool(pool_size)
         print "start: " + str(s) +" and end: "+ str(e), "Pool_size:", pool.size
         if(start > end):
             print "start > end"
@@ -68,7 +72,7 @@ def idea(request):
     res = calMaxCountWithGevent(start, end)
     end_time = time.time() - start_time
     print end_time
-    return HttpResponse(str(res) + "... in " + str(end_time) + "seconds" )
+    return HttpResponse(str(res) + " {in " + str(end_time) + " seconds}" )
 
 def idea_nogevent(request):    
     e = request.GET.get('end', '')
@@ -83,6 +87,7 @@ def idea_nogevent(request):
         end = int(e)    
         if(end > 1000000):
             return HttpResponse("Invalid parameters, end cannot exceed 1M, add parameters like start=1&end=10")
+            
         print "start: " + str(s) +" and end: "+ str(e), "Pool_size :", pool.size, "No gevent"
         if(start > end):
             print "start > end"
@@ -94,7 +99,7 @@ def idea_nogevent(request):
     res = calMaxCountWithoutGevent(start, end)
     end_time = time.time() - start_time
     print end_time
-    return HttpResponse(str(res) + "... in " + str(end_time) + "seconds" )
+    return HttpResponse(str(res) + " {in " + str(end_time) + " seconds}" )
 
 
 

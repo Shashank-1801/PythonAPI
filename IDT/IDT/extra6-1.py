@@ -19,5 +19,14 @@ def createUrl(url,start, end):
     gevent.joinall(threads)
     
 
-openPage("https://thawing-fortress-9924.herokuapp.com/idea/cc?start=1&end=100")
-createUrl("https://thawing-fortress-9924.herokuapp.com/idea/cc", 50, 1000)
+def justOpenUrl(url):
+    for x in xrange(100,100000, 50):
+        newurl = url+"?start=" + str(1)+ "&end=" + str(x)
+        print newurl
+        resp = urlopen(newurl)
+        print "output : ", resp.read()
+        print 
+
+#openPage("https://thawing-fortress-9924.herokuapp.com/idea/cc?start=1&end=100")
+#createUrl("https://thawing-fortress-9924.herokuapp.com/idea/cc", 50, 1000)
+justOpenUrl("https://thawing-fortress-9924.herokuapp.com/idea/cc")
